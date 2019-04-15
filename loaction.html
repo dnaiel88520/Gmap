@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Bike</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+            </div>
+            <div class="col m-3">
+                <h1>新竹景點規劃</h1>
+            </div>
+            <div class="col">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-7">
+                <div id="map" style="width:800px;height:700px"></div>
+            </div>
+            <div class="col ml-5">
+                <div class="row">
+                    <div class="form-group">
+                        <p>旅館</p>
+                        <select id="hotel" class="form-control" style="width:300px;" multiple></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <p>景點</p>
+                        <select id="place" class="form-control" style="width:300px;height: 400px;" multiple></select>
+                    </div>
+                </div>
+                <div class="row">
+                    <button type="button" id="create" class="btn btn-light">規劃路線</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAXuuN_AMKp1W1n2jfflPfoaY4N8P0UlM"></script>
+<script>
+    $(function () {
+        var map;
+        marker =null;
+        var center = {
+            lat: 24.8016170,
+            lng: 120.971574
+        };
+        var directionsService = new google.maps.DirectionsService();
+            var directionsDisplay = new google.maps.DirectionsRenderer();
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: center,
+                zoom: 17
+            });
+            directionsDisplay.setMap(map);
+            document.getElementById('create').addEventListener('click', function () {
+                displayRoute(directionsService, directionsDisplay);
+            });
+
+            function displayRoute(directionsService, directionsDisplay) {
+                var waypoints = [];
+                var place_Array = document.getElementById('place');
+                for (var i = 0; i < place_Array.length; i++) {
+                    if (place_Array.options[i].selected) {
+                        waypoints.push({
+                            location: place_Array[i].value,
+                            stopover: true
+                        });
+                    }
+                }
+                var hotel_Array = document.getElementById('hotel');
+                for (var i = 0; i < hotel_Array.length; i++) {
+                    if (hotel_Array.options[i].selected) {
+                        waypoints.push({
+                            location: hotel_Array[i].value,
+                            stopover: true
+                        });
+                    }
+                }
+                directionsService.route({
+                    origin: document.getElementById('hotel').value,
+                    destination: document.getElementById('place').value,
+                    waypoints: waypoints,
+                    optimizeWaypoints: true,
+                    travelMode: 'DRIVING'
+                }, function (response, status) {
+                    if (status === 'OK') {
+                        directionsDisplay.setDirections(response);
+                    } else {
+                        window.alert('Directions request failed due to ' + status);
+                    }
+                });
+            }
+        $.ajax({
+                url: "http://opendata.hccg.gov.tw/dataset/39ee314b-7ce7-4265-a6b5-b57f42392da8/resource/6a3a5f61-5383-419d-a94c-df710071a51e/download/20180321131425502.json",
+                type: "GET",
+            }).done(function (data) {
+                for (var item of data) {
+                    var option = document.createElement("option");
+                    option.innerHTML = item.旅館名稱;
+                    document.getElementById("hotel").appendChild(option);
+                    var marker = new google.maps.Marker({
+                        position: {
+                            lat: parseFloat(item.緯度),
+                            lng: parseFloat(item.經度)
+                        },
+                        map: map,
+                        icon: "http://icons.iconarchive.com/icons/dapino/summer-holiday/32/hotel-icon.png",
+                        title: item.旅館名稱
+                    });
+                }
+            })
+            $.ajax({
+                url: "http://opendata.hccg.gov.tw/dataset/7ea7e303-df62-4fbe-a84f-99bdd724b577/resource/c15a9c5f-f6cb-4da5-b8a6-5e7bc4c9eb08/download/20180501160733080.json",
+                type: "GET",
+            }).done(function (data) {
+                for (var item of data) {
+                    var option = document.createElement("option");
+                    option.innerHTML = item.古蹟名稱;
+                    document.getElementById("place").appendChild(option);
+                    var marker = new google.maps.Marker({
+                        position: {
+                            lat: parseFloat(item.緯度),
+                            lng: parseFloat(item.經度)
+                        },
+                        map: map,
+                        icon: "http://icons.iconarchive.com/icons/vectorizeimages/iconpack/32/map-icon.png",
+                        title: item.古蹟名稱
+                    });
+                }
+            })
+    })
+</script>
+
+</html>

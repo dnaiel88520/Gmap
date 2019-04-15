@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Bike</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col m-3">
+                <h1>停車場位置</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div id="map" style="width:1000px;height:700px"></div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAXuuN_AMKp1W1n2jfflPfoaY4N8P0UlM"></script>
+<script>
+    $(function () {
+        var map;
+        var center = {
+            lat: 24.8016170,
+            lng: 120.971574
+        };
+        var marker;
+        map = new google.maps.Map(document.getElementById("map"), {
+            center: center,
+            zoom: 14
+        });
+
+        $.ajax({
+            url: "http://opendata.hccg.gov.tw/dataset/1f334249-9b55-4c42-aec1-5a8a8b5e07ca/resource/4d5edb22-a15e-4097-8635-8e32f7db601a/download/20180212143756340.json",
+            type: "GET",
+        }).done(function (response) {
+            for (var item of response) {
+                var marker = new google.maps.Marker({
+                    position: {
+                        lat: parseFloat(item.緯度),
+                        lng: parseFloat(item.經度)
+                    },
+                    map: map,
+                    icon: "https://img.icons8.com/nolan/32/000000/sedan.png",
+                    title: item.站點名稱
+                });
+            }
+        })
+    })
+</script>
+
+</html>
